@@ -21,11 +21,13 @@
             android:id="@+id/heart_key"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/green"
             android:text="@string/HR" />
         <TextView
             android:id="@+id/heart_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/green"
             android:text="@string/HR_Loading"
             android:textSize="12dp"/>
 

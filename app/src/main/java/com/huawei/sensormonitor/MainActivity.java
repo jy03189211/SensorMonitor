@@ -3,6 +3,7 @@ package com.huawei.sensormonitor;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -57,6 +58,25 @@ public class MainActivity extends WearableActivity implements SensorEventListene
         setAmbientEnabled();
 
     }
+
+    @Override
+    public void onEnterAmbient(Bundle ambientDetails) {
+        super.onEnterAmbient(ambientDetails);
+        mHeartRateAttr.setTextColor(Color.WHITE);
+        mHeartRateAttr.getPaint().setAntiAlias(false);
+        mHeartRateName.setTextColor(Color.WHITE);
+        mHeartRateName.getPaint().setAntiAlias(false);
+    }
+
+    @Override
+    public void onExitAmbient() {
+        super.onExitAmbient();
+        mHeartRateAttr.setTextColor(Color.GREEN);
+        mHeartRateAttr.getPaint().setAntiAlias(true);
+        mHeartRateName.setTextColor(Color.GREEN);
+        mHeartRateName.getPaint().setAntiAlias(true);
+    }
+
     //TODO: 1. permission request other than hear rate
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -102,4 +122,5 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
+
 }
