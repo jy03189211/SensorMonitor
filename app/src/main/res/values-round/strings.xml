@@ -1,0 +1,4 @@
+<resources>
+    <string name="HR">Heart Rate</string>
+    <string name="HR_Loading">Loading ...</string>
+</resources>
