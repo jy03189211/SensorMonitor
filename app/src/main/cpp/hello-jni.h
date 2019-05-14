@@ -1,0 +1,8 @@
+//
+// Created by Xi Gong on 2019-05-13.
+//
+
+#ifndef SENSORMONITOR_HELLO_JNI_H
+#define SENSORMONITOR_HELLO_JNI_H
+
+#endif //SENSORMONITOR_HELLO_JNI_H

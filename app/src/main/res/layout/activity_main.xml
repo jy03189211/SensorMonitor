@@ -22,14 +22,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/green"
-            android:text="@string/HR" />
+            android:layout_gravity="center_horizontal"
+            android:text="@string/HR"
+            android:textSize="@dimen/screen_percentage_05" />
+
         <TextView
             android:id="@+id/heart_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/green"
+            android:layout_gravity="center_horizontal"
             android:text="@string/HR_Loading"
-            android:textSize="12dp"/>
+            android:textSize="@dimen/screen_percentage_12"/>
 
     </LinearLayout>
 </android.support.wear.widget.BoxInsetLayout>

@@ -13,6 +13,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.widget.TextView;
 
 
@@ -26,18 +29,24 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 
     private TextView mHeartRateAttr;
     private TextView mHeartRateName;
-    String heartRateValue;
+    private float heartRateValue;
+    private boolean mIsRunning;
 
+    static {
+        System.loadLibrary("hello-jni");
+    }
+    public native float floatFromJNI(float heartrate);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mIsRunning=true;
         mSensorManager = (SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) != null){
-            Log.d(TAG,"HR detected !!!");
+            Log.d(TAG,"HR sensor detected !");
         } else {
-            Log.d(TAG,"NO HR !!!");
+            Log.d(TAG,"NO HR sensor ！");
         }
         //Check sensor permission
         int permissionCheck = ContextCompat.checkSelfPermission(this,
@@ -80,7 +89,7 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     //TODO: 1. permission request other than hear rate
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_HR: {
                 // If request is cancelled, the result arrays are empty.
@@ -90,8 +99,8 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 
                 } else {
                     Log.d(TAG,"Permission denied");
-                    heartRateValue="0";
-                    mHeartRateAttr.setText(heartRateValue);
+                    heartRateValue=0;
+                    mHeartRateAttr.setText(Float.toString(heartRateValue));
                 }
                 return;
             }
@@ -100,21 +109,42 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 
     @Override
     protected void onResume() {
+        if(mIsRunning==false){
+
+            mIsRunning=true;
+        }
+        mHeartRateAttr.setTextColor(Color.GREEN);
+        mHeartRateName.setTextColor(Color.GREEN);
+        mHeartRateAttr.setText("Loading ...");
+        mHeartRateAttr.setTextSize(TypedValue.COMPLEX_UNIT_DIP,20);
         super.onResume();
         mSensorManager.registerListener(this, mHRmeter, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     protected void onPause() {
+        if(mIsRunning==true){
+
+            mIsRunning=false;
+        }
+        mHeartRateAttr.setTextColor(Color.RED);
+        mHeartRateAttr.setText("Paused, clicked again to resume.");
+        mHeartRateAttr.setTextSize(TypedValue.COMPLEX_UNIT_DIP,12);
+        mHeartRateAttr.setGravity(Gravity.CENTER_HORIZONTAL);
+        mHeartRateName.setTextColor(Color.RED);
+
         super.onPause();
+
         mSensorManager.unregisterListener(this);
     }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        heartRateValue = Float.toString(sensorEvent.values.length>0?sensorEvent.values[0]:0.0f);
-        mHeartRateAttr.setText(heartRateValue);
-        Log.d(TAG, "onSensorChanged:"+heartRateValue);
+        heartRateValue=(sensorEvent.values.length>0?sensorEvent.values[0]:0.0f);
+
+        //mHeartRateAttr.setText(heartRateValue);
+        mHeartRateAttr.setText(Float.toString(floatFromJNI(heartRateValue)));
+        Log.d(TAG, "onSensorChanged:\nheart rate value:"+heartRateValue+"\n"+"accuracy:"+sensorEvent.accuracy+"\n"+"timestamp:"+sensorEvent.timestamp);
 
     }
 
@@ -123,4 +153,29 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getRepeatCount() == 0) {
+            if (keyCode == KeyEvent.KEYCODE_STEM_1) {
+                if(mIsRunning==true){
+                    onPause();
+                }else {
+                    onResume();
+                }
+
+                // Do stuff
+                Log.d(TAG, "KEYCODE_STEM_11111 clicked ");
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_STEM_2) {
+                Log.d(TAG, "KEYCODE_STEM_22222 clicked");
+                // Do stuff
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_STEM_3) {
+                Log.d(TAG, "KEYCODE_STEM_33333 clicked");
+                // Do stuff
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 }
