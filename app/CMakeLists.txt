@@ -49,13 +49,13 @@ find_library(
         log )
 
 add_library(
-        hello-jni
+        optimal_filtering-jni
         SHARED
-        src/main/cpp/hello-jni.c)
+        src/main/cpp/optimal_filtering-jni.c)
 
 include_directories(src/main/cpp/)
 
-# Include libraries needed for hello-jni lib
-target_link_libraries(hello-jni
+# Include libraries needed for optimal_filtering-jni lib
+target_link_libraries(optimal_filtering-jni
         android
         log)
