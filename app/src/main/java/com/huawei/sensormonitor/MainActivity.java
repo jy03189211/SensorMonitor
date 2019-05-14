@@ -33,7 +33,7 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     private boolean mIsRunning;
 
     static {
-        System.loadLibrary("hello-jni");
+        System.loadLibrary("optimal_filtering-jni");
     }
     public native float floatFromJNI(float heartrate);
 
