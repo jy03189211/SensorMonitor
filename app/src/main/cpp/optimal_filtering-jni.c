@@ -5,20 +5,26 @@
 #include <string.h>
 #include <jni.h>
 #include <android/log.h>
+#include "optimal_filtering-jni.h"
 
 JNIEXPORT jfloat JNICALL
 Java_com_huawei_sensormonitor_MainActivity_floatFromJNI(JNIEnv *pEnv, jobject pObj,
-                                                         jfloat pFloatP) {
-    __android_log_print(ANDROID_LOG_INFO, "native", "%.1f in %d bytes", pFloatP, sizeof(pFloatP));
+                                                         jfloat pFloatP, jfloatArray pArrayP) {
+    jboolean isCopy;
+    __android_log_print(ANDROID_LOG_DEBUG, "Native c raw data:\n", "%.1f in %d bytes", pFloatP, sizeof(pFloatP));
+    jfloat *floatArr = (*pEnv)->GetFloatArrayElements(pEnv, pArrayP, &isCopy);
+    __android_log_print(ANDROID_LOG_INFO, "GetReleaseFloatArrayDemo", "a new copy is created: %d", isCopy);
 
-/*
-    char nativeStr[6];
-    jsize length = (*pEnv)->GetStringUTFLength(pEnv, pStringP);
-    (*pEnv)->GetStringUTFRegion(pEnv, pStringP, 0, length, nativeStr);
-    __android_log_print(ANDROID_LOG_INFO, "native",
-                        "jstring converted to UTF-8 string and copied to native buffer: %s that is %d long",
-                        nativeStr, length);
-*/
-    return pFloatP;
+    jsize len = (*pEnv)->GetArrayLength(pEnv, pArrayP);
+    int i;
+    float sum = 0;
+    for (i = 0; i < len; ++i) {
+        __android_log_print(ANDROID_LOG_INFO, "GetReleaseFloatArrayDemo ", "%d: %.1f", i, floatArr[i]);
+        sum+=floatArr[i];
+    }
+    (*pEnv)->ReleaseFloatArrayElements(pEnv, pArrayP, floatArr, 0);
+
+
+    return sum/len;
 
 }
