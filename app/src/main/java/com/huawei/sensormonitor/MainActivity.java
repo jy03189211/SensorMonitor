@@ -19,13 +19,21 @@ import android.view.KeyEvent;
 import android.widget.TextView;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 
 public class MainActivity extends WearableActivity implements SensorEventListener {
 
+    private static final int MY_PERMISSIONS_REQUEST_READ_HR=100;
+    private final static int WINDOW_SIZE=5;
     private static final String TAG = "SensorMonitor";
+    private static List<Float> window;
     private SensorManager mSensorManager;
     private Sensor mHRmeter;
-    private static final int MY_PERMISSIONS_REQUEST_READ_HR=100;
+
 
     private TextView mHeartRateAttr;
     private TextView mHeartRateName;
@@ -35,7 +43,7 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     static {
         System.loadLibrary("optimal_filtering-jni");
     }
-    public native float floatFromJNI(float heartrate);
+    private native float floatFromJNI(float heartrate, float[] arr);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +53,7 @@ public class MainActivity extends WearableActivity implements SensorEventListene
         mSensorManager = (SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) != null){
             Log.d(TAG,"HR sensor detected !");
+            window=new ArrayList<Float>();
         } else {
             Log.d(TAG,"NO HR sensor ！");
         }
@@ -140,11 +149,23 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        float currentState;
+
         heartRateValue=(sensorEvent.values.length>0?sensorEvent.values[0]:0.0f);
 
-        //mHeartRateAttr.setText(heartRateValue);
-        mHeartRateAttr.setText(Float.toString(floatFromJNI(heartRateValue)));
-        Log.d(TAG, "onSensorChanged:\nheart rate value:"+heartRateValue+"\n"+"accuracy:"+sensorEvent.accuracy+"\n"+"timestamp:"+sensorEvent.timestamp);
+        //window stepping
+        window.add(heartRateValue);
+        if(window.size()>WINDOW_SIZE){
+            window=window.subList(Math.max(window.size() - WINDOW_SIZE, 0), window.size());
+            //Log.d(TAG,"windows list:"+window);
+        }
+
+        //Log.d(TAG,"Java array:"+ Arrays.toString(convertFloatPrim(window)));
+        currentState=floatFromJNI(heartRateValue,convertFloatPrim(window));
+        mHeartRateAttr.setText(Float.toString(currentState));
+        //Log.d(TAG, "Java:\nheart rate value:"+heartRateValue+"\n"+"accuracy:"+sensorEvent.accuracy+"\n"+"timestamp:"+sensorEvent.timestamp);
+        Log.d(TAG, "Java raw value:       "+heartRateValue);
+        Log.d(TAG, "Native smoothed value:"+currentState);
 
     }
 
@@ -178,4 +199,17 @@ public class MainActivity extends WearableActivity implements SensorEventListene
         }
         return super.onKeyDown(keyCode, event);
     }
+
+
+    public static float[] convertFloatPrim(List<Float> floats)
+    {
+        float[] ret = new float[floats.size()];
+        Iterator<Float> iterator = floats.iterator();
+        for (int i = 0; i < ret.length; i++)
+        {
+            ret[i] = iterator.next().floatValue();
+        }
+        return ret;
+    }
+
 }

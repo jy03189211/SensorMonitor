@@ -50,7 +50,7 @@ find_library(
 
 add_library(
         optimal_filtering-jni
-        SHARED
+        SHARED # not sure wether stati or dynamic lib is better
         src/main/cpp/optimal_filtering-jni.c)
 
 include_directories(src/main/cpp/)
